@@ -65,7 +65,8 @@ const obtenerProductos = async (req, res) => {
 // Leer producto por ID
 const obtenerProductoPorId = async (req, res) => {
     try {
-        const producto = await Producto.findById(req.params.id);
+        // Buscar por el campo 'id' personalizado en lugar de '_id'
+        const producto = await Producto.findOne({ id: req.params.id });
         if (!producto) return res.status(404).json({ message: 'Producto no encontrado' });
         res.status(200).json(producto);
     } catch (error) {
@@ -76,7 +77,12 @@ const obtenerProductoPorId = async (req, res) => {
 // Actualizar producto
 const actualizarProducto = async (req, res) => {
     try {
-        const producto = await Producto.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+        // Buscar y actualizar por el campo 'id' personalizado en lugar de '_id'
+        const producto = await Producto.findOneAndUpdate(
+            { id: req.params.id }, 
+            req.body, 
+            { new: true, runValidators: true }
+        );
         if (!producto) return res.status(404).json({ message: 'Producto no encontrado' });
         res.status(200).json(producto);
     } catch (error) {
