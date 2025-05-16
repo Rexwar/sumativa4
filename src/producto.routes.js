@@ -7,6 +7,10 @@ const { validateCreateProduct, validateUpdateProduct } = require('./middleware/v
 
 router.post('/', jwtMiddleware, validateCreateProduct, productoController.crearProducto);
 router.get('/', jwtMiddleware, productoController.obtenerProductos);
+
+// Ruta de depuración para validar IDs - debe ir ANTES de la ruta con parámetro :id
+router.get('/debug/validar/:id', productoController.validarId);
+
 router.get('/:id', jwtMiddleware, productoController.obtenerProductoPorId);
 router.patch('/:id', jwtMiddleware, validateUpdateProduct, productoController.actualizarProducto);
 router.delete('/:id', jwtMiddleware, productoController.eliminarProducto);

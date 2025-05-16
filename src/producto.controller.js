@@ -65,11 +65,27 @@ const obtenerProductos = async (req, res) => {
 // Leer producto por ID
 const obtenerProductoPorId = async (req, res) => {
     try {
+        // Mostrar el ID que se está buscando para depuración
+        console.log('Buscando producto con ID:', req.params.id);
+        
         // Buscar por el campo 'id' personalizado en lugar de '_id'
         const producto = await Producto.findOne({ id: req.params.id });
-        if (!producto) return res.status(404).json({ message: 'Producto no encontrado' });
+        
+        if (!producto) {
+            // Si no se encuentra, buscar todos los productos para verificar IDs
+            const todosProductos = await Producto.find({}, 'id');
+            console.log('IDs disponibles:', todosProductos.map(p => p.id));
+            
+            return res.status(404).json({ 
+                message: 'Producto no encontrado', 
+                idBuscado: req.params.id,
+                idsDisponibles: todosProductos.map(p => p.id)
+            });
+        }
+        
         res.status(200).json(producto);
     } catch (error) {
+        console.error('Error al buscar producto:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -105,10 +121,38 @@ const eliminarProducto = async (req, res) => {
     }
 };
 
+// Función de depuración para validar IDs
+const validarId = async (req, res) => {
+    try {
+        const idBuscado = req.params.id;
+        console.log('Validando ID:', idBuscado);
+        
+        // Buscar todos los productos
+        const productos = await Producto.find({});
+        
+        // Mostrar información detallada
+        const resultado = {
+            idBuscado,
+            totalProductos: productos.length,
+            productos: productos.map(p => ({
+                id: p.id,
+                nombre: p.nombre,
+                coincide: p.id === idBuscado
+            }))
+        };
+        
+        res.status(200).json(resultado);
+    } catch (error) {
+        console.error('Error al validar ID:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     crearProducto,
     obtenerProductos,
     obtenerProductoPorId,
     actualizarProducto,
-    eliminarProducto
+    eliminarProducto,
+    validarId
 };
